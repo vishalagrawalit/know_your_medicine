@@ -1,37 +1,35 @@
-import cv2
-import numpy as np
-import pytesseract
+# import the necessary packages
 from PIL import Image
+import pytesseract
+import argparse
+import cv2
+import os
 
-# Path of working folder on Disk
-src_path = r"C:\Users\VISHAL\Desktop"
+pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files (x86)/Tesseract-OCR/tesseract'
 
-def get_string(img_path):
-    # Read image with opencv
-    img = cv2.imread(img_path, 0)
+# load the example image and convert it to grayscale
+image = cv2.imread("C:/Users/VISHAL/images/" + med2.jpg)
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    # Apply dilation and erosion to remove some noise
-    kernel = np.ones((1, 1), np.uint8)
-    img = cv2.dilate(img, kernel, iterations=1)
-    img = cv2.erode(img, kernel, iterations=1)
+cv2.imshow("Image", gray)
 
-    # Write image after removed noise
-    cv2.imwrite(r"C:\Users\VISHAL\Desktop" + "\removed_noise.png", img)
+# write the grayscale image to disk as a temporary file so we can
+# apply OCR to it
+filename = "{}.png".format(os.getpid())
+print(filename)
+cv2.imwrite("C:/Users/VISHAL/images/" + filename, gray)
 
-    # Write the image after apply opencv to do some ...
-    cv2.imwrite(r"C:\Users\VISHAL\Desktop" + "\thres.png", img)
+#img = cv2.imread("C:/Users/VISHAL/images/" + filename)
+#cv2.imshow(filename, img)
 
-    # Recognize text with tesseract for python
-    result = pytesseract.image_to_string(Image.open(r"C:\Users\VISHAL\Desktop" + "\thres.png"))
+# load the image as a PIL/Pillow image, apply OCR, and then delete
+# the temporary file
+src_path = r"C:/Users/VISHAL/images/"
+text = pytesseract.image_to_string(Image.open(src_path + filename))
+os.remove("C:/Users/VISHAL/images/" + filename)
+print(text)
 
-    # Remove template file
-    #os.remove(temp)
-
-    return result
-
-print ('--- Start recognize text from image ---')
-text = get_string(open(r"C:\Users\VISHAL\Desktop\med1.jpg","r"))
-print("Recognized Text", text)
-print ("------ Done Recognizing -------")
-
-
+# show the output images
+# cv2.imshow("Image", image)
+#cv2.imshow("Output", gray)
+cv2.waitKey(0)
